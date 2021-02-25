@@ -1,3 +1,14 @@
-.Tilt {
+.logo {
+  width: 150px;
+  height: 150px;
   background: linear-gradient(89deg, #ff5edf 0%, #04c8de 100%);
+  margin: 2rem;
+  margin-top: 0px;
+  box-shadow: 0 0 8px 2px rgb(0 0 0 / 20%);
+  border-radius: 0.25rem;
+  transition: all 0.2s ease-in-out;
+}
+
+.logo:hover {
+  transform: scale(1.05);
 }

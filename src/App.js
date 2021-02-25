@@ -32,6 +32,18 @@ const App = () => {
   const [box, setBox] = useState({});
   const [route, setRoute] = useState('signin');
   const [isSignedIn, setIsSignedIn] = useState(false);
+  const [user, setUser] = useState({
+    id: '',
+    name: '',
+    email: '',
+    entries: 0,
+    joined: '',
+  });
+
+  const loadUser = (data) => {
+    const { id, name, email, entries, joined } = data;
+    setUser({ id, name, email, entries, joined });
+  };
 
   const calculateFaceLocation = (data) => {
     const clarifaiFace =
@@ -61,7 +73,18 @@ const App = () => {
 
     app.models
       .predict(Clarifai.FACE_DETECT_MODEL, input)
-      .then((response) => displayFaceBox(calculateFaceLocation(response)))
+      .then((response) => {
+        if (response) {
+          fetch('http://localhost:3001/image', {
+            method: 'put',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: user.id }),
+          })
+            .then((response) => response.json())
+            .then((count) => setUser({ ...user, entries: count }));
+        }
+        displayFaceBox(calculateFaceLocation(response));
+      })
       .catch((error) => console.log(error));
   };
 
@@ -81,7 +104,7 @@ const App = () => {
       {route === 'home' ? (
         <>
           <Logo />
-          <Rank />
+          <Rank name={user.name} entries={user.entries} />
           <ImageLinkForm
             onInputChange={handleChange}
             onButtonSubmit={handleSubmit}
@@ -89,9 +112,9 @@ const App = () => {
           <FaceRecognition box={box} imageUrl={imageUrl} />
         </>
       ) : route === 'signin' ? (
-        <Signin onRouteChange={handleRouteChange} />
+        <Signin loadUser={loadUser} onRouteChange={handleRouteChange} />
       ) : (
-        <Register onRouteChange={handleRouteChange} />
+        <Register loadUser={loadUser} onRouteChange={handleRouteChange} />
       )}
     </div>
   );
